@@ -1,0 +1,92 @@
+{
+  "hero_bg": {
+    "key": "hero_bg",
+    "title": "Sadafal Dining Interior",
+    "url": "https://res.cloudinary.com/mychatend/image/upload/v1795585164/sadafal_cafe/hero_bg.jpg"
+  },
+  "about_dining": {
+    "key": "about_dining",
+    "title": "Warm Family Dining",
+    "url": "https://res.cloudinary.com/mychatend/image/upload/v1795585166/sadafal_cafe/about_dining.jpg"
+  },
+  "showcase_indian": {
+    "key": "showcase_indian",
+    "title": "North Indian Delicacies",
+    "url": "https://res.cloudinary.com/mychatend/image/upload/v1795585168/sadafal_cafe/showcase_indian.jpg"
+  },
+  "showcase_chinese": {
+    "key": "showcase_chinese",
+    "title": "Chinese & Indo-Chinese",
+    "url": "https://res.cloudinary.com/mychatend/image/upload/v1795585169/sadafal_cafe/showcase_chinese.jpg"
+  },
+  "showcase_pizza": {
+    "key": "showcase_pizza",
+    "title": "Pizza & Pasta",
+    "url": "https://res.cloudinary.com/mychatend/image/upload/v1795585172/sadafal_cafe/showcase_pizza.jpg"
+  },
+  "showcase_south_indian": {
+    "key": "showcase_south_indian",
+    "title": "South Indian Specialties",
+    "url": "https://res.cloudinary.com/mychatend/image/upload/v1795585174/sadafal_cafe/showcase_south_indian.jpg"
+  },
+  "showcase_beverages": {
+    "key": "showcase_beverages",
+    "title": "Refreshing Shakes & Lassi",
+    "url": "https://res.cloudinary.com/mychatend/image/upload/v1795585175/sadafal_cafe/showcase_beverages.jpg"
+  },
+  "showcase_snacks": {
+    "key": "showcase_snacks",
+    "title": "Fast Food & Snacks",
+    "url": "https://res.cloudinary.com/mychatend/image/upload/v1795585177/sadafal_cafe/showcase_snacks.jpg"
+  },
+  "gallery_paneer_tikka": {
+    "key": "gallery_paneer_tikka",
+    "title": "Tandoori Paneer Tikka",
+    "url": "https://res.cloudinary.com/mychatend/image/upload/v1795585178/sadafal_cafe/gallery_paneer_tikka.jpg"
+  },
+  "gallery_masala_dosa": {
+    "key": "gallery_masala_dosa",
+    "title": "Crisp Golden Masala Dosa",
+    "url": "https://res.cloudinary.com/mychatend/image/upload/v1795585180/sadafal_cafe/gallery_masala_dosa.jpg"
+  },
+  "gallery_pizza": {
+    "key": "gallery_pizza",
+    "title": "Special Cheesy Veggie Pizza",
+    "url": "https://res.cloudinary.com/mychatend/image/upload/v1795585182/sadafal_cafe/gallery_pizza.jpg"
+  },
+  "gallery_dal_makhani": {
+    "key": "gallery_dal_makhani",
+    "title": "Rich Dal Makhani & Naan",
+    "url": "https://res.cloudinary.com/mychatend/image/upload/v1795585184/sadafal_cafe/gallery_dal_makhani.jpg"
+  },
+  "gallery_lassi_shakes": {
+    "key": "gallery_lassi_shakes",
+    "title": "Special Cold Shakes & Traditional Lassi",
+    "url": "https://res.cloudinary.com/mychatend/image/upload/v1795585185/sadafal_cafe/gallery_lassi_shakes.jpg"
+  },
+  "gallery_chole_bhature": {
+    "key": "gallery_chole_bhature",
+    "title": "Fresh Chole Bhature",
+    "url": "https://res.cloudinary.com/mychatend/image/upload/v1795585187/sadafal_cafe/gallery_chole_bhature.jpg"
+  },
+  "gallery_noodles_rolls": {
+    "key": "gallery_noodles_rolls",
+    "title": "Wok-Tossed Hakka Noodles",
+    "url": "https://res.cloudinary.com/mychatend/image/upload/v1795585188/sadafal_cafe/gallery_noodles_rolls.jpg"
+  },
+  "gallery_ambiance": {
+    "key": "gallery_ambiance",
+    "title": "Welcoming Dining Atmosphere",
+    "url": "https://res.cloudinary.com/mychatend/image/upload/v1795585190/sadafal_cafe/gallery_ambiance.jpg"
+  },
+  "gallery_pav_bhaji": {
+    "key": "gallery_pav_bhaji",
+    "title": "Butter Pav Bhaji",
+    "url": "https://res.cloudinary.com/mychatend/image/upload/v1795585192/sadafal_cafe/gallery_pav_bhaji.jpg"
+  },
+  "gallery_burger_sandwich": {
+    "key": "gallery_burger_sandwich",
+    "title": "Grilled Special Club Sandwich",
+    "url": "https://res.cloudinary.com/mychatend/image/upload/v1795585194/sadafal_cafe/gallery_burger_sandwich.jpg"
+  }
+}

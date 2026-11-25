@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://sadafal-cafe.onrender.com/sitemap.xml
