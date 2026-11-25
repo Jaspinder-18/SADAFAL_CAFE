@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   Search,
   AlertCircle,
@@ -17,36 +17,49 @@ import {
   Disc,
   Salad,
   Coffee,
+  ChevronDown,
+  ChevronUp,
+  LayoutGrid,
+  List,
+  Layers,
+  Check,
 } from 'lucide-react';
 import { MENU_CATEGORIES, MENU_ITEMS, MENU_NOTE } from '../data/menuData';
 import { RESTAURANT_INFO } from '../data/restaurantData';
 
-// Map category icons to Lucide components
 const iconMap = {
-  Utensils: Utensils,
-  Boxes: Boxes,
-  Sun: Sun,
-  Soup: Soup,
-  Flame: Flame,
-  CookingPot: CookingPot,
+  Utensils,
+  Boxes,
+  Sun,
+  Soup,
+  Flame,
+  CookingPot,
   Bowl: Sparkles,
   Wheat: Sparkles,
-  CircleDot: CircleDot,
-  Pizza: Pizza,
-  Sandwich: Sandwich,
-  Sparkles: Sparkles,
-  Cookie: Cookie,
-  Disc: Disc,
-  Salad: Salad,
-  Coffee: Coffee,
+  CircleDot,
+  Pizza,
+  Sandwich,
+  Sparkles,
+  Cookie,
+  Disc,
+  Salad,
+  Coffee,
 };
 
 export default function Menu({ selectedCategory, onSelectCategory }) {
-  const [activeCategory, setActiveCategory] = useState(selectedCategory || 'all');
+  // Default to 'combos' or external selection to avoid overwhelming 159-item initial scroll
+  const [activeCategory, setActiveCategory] = useState(selectedCategory || 'combos');
   const [searchQuery, setSearchQuery] = useState('');
+  const [viewMode, setViewMode] = useState('grid'); // 'grid' | 'list'
+  
+  // Track open accordions when in 'all' view
+  const [openAccordions, setOpenAccordions] = useState({
+    combos: true,
+    breakfast: true,
+    starters: true,
+  });
 
-  // Handle external category changes (e.g. from Food Showcase clicks)
-  React.useEffect(() => {
+  useEffect(() => {
     if (selectedCategory) {
       setActiveCategory(selectedCategory);
     }
@@ -59,19 +72,62 @@ export default function Menu({ selectedCategory, onSelectCategory }) {
     }
   };
 
-  // Filter items based on active category & search query
-  const filteredItems = useMemo(() => {
+  const toggleAccordion = (catId) => {
+    setOpenAccordions((prev) => ({
+      ...prev,
+      [catId]: !prev[catId],
+    }));
+  };
+
+  const expandAllAccordions = () => {
+    const allOpen = {};
+    MENU_CATEGORIES.forEach((c) => {
+      if (c.id !== 'all') allOpen[c.id] = true;
+    });
+    setOpenAccordions(allOpen);
+  };
+
+  const collapseAllAccordions = () => {
+    setOpenAccordions({});
+  };
+
+  // Group items by category
+  const categoriesWithItems = useMemo(() => {
+    return MENU_CATEGORIES.filter((c) => c.id !== 'all').map((cat) => {
+      const items = MENU_ITEMS.filter((item) => {
+        const matchesCategory = item.category === cat.id;
+        const matchesSearch =
+          !searchQuery ||
+          item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          item.category.toLowerCase().includes(searchQuery.toLowerCase());
+        return matchesCategory && matchesSearch;
+      });
+      return {
+        ...cat,
+        items,
+      };
+    });
+  }, [searchQuery]);
+
+  // Filtered items when a specific category is active
+  const activeCategoryItems = useMemo(() => {
+    if (activeCategory === 'all') {
+      return MENU_ITEMS.filter((item) =>
+        !searchQuery ||
+        item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.category.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
     return MENU_ITEMS.filter((item) => {
-      const matchesCategory =
-        activeCategory === 'all' || item.category === activeCategory;
+      const matchesCategory = item.category === activeCategory;
       const matchesSearch =
+        !searchQuery ||
         item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         item.category.toLowerCase().includes(searchQuery.toLowerCase());
       return matchesCategory && matchesSearch;
     });
   }, [activeCategory, searchQuery]);
 
-  // Compute item count per category for tabs
   const getCategoryCount = (catId) => {
     if (catId === 'all') return MENU_ITEMS.length;
     return MENU_ITEMS.filter((i) => i.category === catId).length;
@@ -85,17 +141,18 @@ export default function Menu({ selectedCategory, onSelectCategory }) {
           <div className="section-eyebrow">Authentic Selections</div>
           <h2 className="section-title">Our Digital Menu</h2>
           <p className="section-subtitle">
-            Explore our wide range of dishes across North Indian, South Indian, Chinese, Italian, Street Food & Beverages.
+            Explore 15 distinct categories of authentic vegetarian cuisine prepared fresh to order.
           </p>
         </div>
 
-        {/* Menu Controls: Search Bar */}
+        {/* Menu Controls Container */}
         <div className="menu-controls">
+          {/* Live Search Input */}
           <div className="menu-search-wrapper">
             <Search className="menu-search-icon" size={20} />
             <input
               type="text"
-              placeholder="Search dishes (e.g. Paneer, Dosa, Hakka Noodles, Pizza, Shake)..."
+              placeholder="Search dishes (e.g. Paneer, Dosa, Hakka, Pizza, Shake)..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="menu-search-input"
@@ -104,22 +161,34 @@ export default function Menu({ selectedCategory, onSelectCategory }) {
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery('')}
-                style={{
-                  position: 'absolute',
-                  right: '16px',
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  color: 'var(--text-muted)',
-                  fontSize: '0.85rem',
-                  fontWeight: '600'
-                }}
+                className="search-clear-btn"
               >
                 Clear
               </button>
             )}
           </div>
 
-          {/* Category Tabs */}
+          {/* Mobile Category Quick Selector Dropdown */}
+          <div className="mobile-category-select-wrapper">
+            <label htmlFor="mobile-cat-select" className="mobile-cat-label">
+              <Layers size={16} /> Jump to Category:
+            </label>
+            <select
+              id="mobile-cat-select"
+              value={activeCategory}
+              onChange={(e) => handleCategoryChange(e.target.value)}
+              className="mobile-category-dropdown"
+            >
+              <option value="all">⭐ All Categories (Grouped View) ({MENU_ITEMS.length})</option>
+              {MENU_CATEGORIES.filter((c) => c.id !== 'all').map((cat) => (
+                <option key={cat.id} value={cat.id}>
+                  {cat.name} ({getCategoryCount(cat.id)} dishes)
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Desktop & Tablet Category Tabs */}
           <div className="category-tabs-container">
             <div className="category-tabs">
               {MENU_CATEGORIES.map((cat) => {
@@ -133,7 +202,7 @@ export default function Menu({ selectedCategory, onSelectCategory }) {
                     className={`category-tab ${isActive ? 'active' : ''}`}
                     onClick={() => handleCategoryChange(cat.id)}
                   >
-                    <IconComponent size={16} />
+                    <IconComponent size={15} />
                     <span>{cat.name}</span>
                     <span className="tab-count">{count}</span>
                   </button>
@@ -141,14 +210,65 @@ export default function Menu({ selectedCategory, onSelectCategory }) {
               })}
             </div>
           </div>
+
+          {/* Toolbar: View Switcher (Grid vs List) & Counter */}
+          <div className="menu-toolbar">
+            <div className="menu-toolbar-left">
+              <span className="menu-counter-badge">
+                {activeCategory === 'all'
+                  ? `Browsing All Categories (${activeCategoryItems.length} dishes)`
+                  : `${MENU_CATEGORIES.find((c) => c.id === activeCategory)?.name || ''} (${activeCategoryItems.length} dishes)`}
+              </span>
+              <span className="pure-veg-tag">
+                <span className="veg-indicator">
+                  <span className="veg-indicator-dot" />
+                </span>
+                <span>100% Pure Veg</span>
+              </span>
+            </div>
+
+            <div className="menu-toolbar-right">
+              {activeCategory === 'all' && !searchQuery && (
+                <div className="accordion-controls">
+                  <button onClick={expandAllAccordions} className="btn-text-sm">
+                    Expand All
+                  </button>
+                  <span style={{ opacity: 0.4 }}>|</span>
+                  <button onClick={collapseAllAccordions} className="btn-text-sm">
+                    Collapse All
+                  </button>
+                </div>
+              )}
+
+              {/* Grid / List View Toggle */}
+              <div className="view-mode-toggle">
+                <button
+                  className={`view-mode-btn ${viewMode === 'grid' ? 'active' : ''}`}
+                  onClick={() => setViewMode('grid')}
+                  aria-label="Grid View"
+                  title="Grid View (Compact Cards)"
+                >
+                  <LayoutGrid size={16} />
+                </button>
+                <button
+                  className={`view-mode-btn ${viewMode === 'list' ? 'active' : ''}`}
+                  onClick={() => setViewMode('list')}
+                  aria-label="List View"
+                  title="List View (Cafe Menu Rows)"
+                >
+                  <List size={16} />
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
 
-        {/* Prominent Menu Accuracy & Availability Note */}
+        {/* Note on Pricing & Direct Details */}
         <div className="menu-notice-card">
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <AlertCircle size={22} color="var(--gold-dark)" style={{ flexShrink: 0 }} />
+            <AlertCircle size={20} color="var(--gold-dark)" style={{ flexShrink: 0 }} />
             <div>
-              <strong>Note on Menu & Pricing:</strong> {MENU_NOTE}
+              <strong>Note:</strong> {MENU_NOTE}
             </div>
           </div>
           <a
@@ -156,93 +276,124 @@ export default function Menu({ selectedCategory, onSelectCategory }) {
             className="btn btn-outline-green btn-sm"
             style={{ flexShrink: 0 }}
           >
-            <Phone size={14} /> Call for Current Details
+            <Phone size={13} /> Call for Current Pricing
           </a>
         </div>
 
-        {/* Results Info */}
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginBottom: '20px',
-            fontSize: '0.9rem',
-            color: 'var(--text-muted)',
-          }}
-        >
-          <span>
-            Showing <strong>{filteredItems.length}</strong> items
-            {searchQuery && ` matching "${searchQuery}"`}
-          </span>
-          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
-            <span className="veg-indicator">
-              <span className="veg-indicator-dot" />
-            </span>
-            <span>Pure Vegetarian</span>
-          </span>
-        </div>
-
-        {/* Menu Cards Grid */}
-        {filteredItems.length > 0 ? (
-          <div className="menu-grid">
-            {filteredItems.map((dish) => (
-              <div key={dish.id} className="menu-card">
-                <div className="menu-card-left">
-                  <div className="veg-indicator" title="Pure Vegetarian">
-                    <div className="veg-indicator-dot" />
+        {/* =========================================================
+            MENU CONTENT RENDERING:
+            Case A: Specific Category Active or Search Query Active
+            Case B: 'All' Categories (Render as Elegant Accordions)
+           ========================================================= */}
+        {activeCategory !== 'all' || searchQuery ? (
+          /* Render single category or active search results */
+          activeCategoryItems.length > 0 ? (
+            <div className={viewMode === 'grid' ? 'menu-grid-compact' : 'menu-list-view'}>
+              {activeCategoryItems.map((dish) => (
+                <div
+                  key={dish.id}
+                  className={viewMode === 'grid' ? 'menu-card-compact' : 'menu-list-row'}
+                >
+                  <div className="dish-info-left">
+                    <div className="veg-indicator" title="Pure Vegetarian">
+                      <div className="veg-indicator-dot" />
+                    </div>
+                    <div>
+                      <h4 className="dish-title-compact">{dish.name}</h4>
+                      {searchQuery && (
+                        <span className="dish-cat-badge">
+                          {dish.category.replace('-', ' ')}
+                        </span>
+                      )}
+                    </div>
                   </div>
-                  <div>
-                    <h4 className="dish-name">{dish.name}</h4>
-                    <span className="dish-category-label">
-                      {dish.category.replace('-', ' ')}
-                    </span>
-                  </div>
+                  <span className="dish-badge-subtle">Freshly Made</span>
                 </div>
-
-                <div style={{ flexShrink: 0 }}>
-                  <span
-                    style={{
-                      fontSize: '0.78rem',
-                      color: 'var(--gold-dark)',
-                      fontWeight: '600',
-                      backgroundColor: 'rgba(212, 175, 55, 0.12)',
-                      padding: '4px 10px',
-                      borderRadius: 'var(--radius-full)',
-                    }}
-                  >
-                    Freshly Prepared
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          ) : (
+            <div className="menu-empty-state">
+              <Search size={36} color="var(--gold-dark)" />
+              <h3>No dishes found matching "{searchQuery}"</h3>
+              <p>Try searching for a different item or switch category tabs above.</p>
+              <button
+                onClick={() => {
+                  setSearchQuery('');
+                  setActiveCategory('combos');
+                }}
+                className="btn btn-primary btn-sm"
+              >
+                Reset Search
+              </button>
+            </div>
+          )
         ) : (
-          <div
-            style={{
-              textAlign: 'center',
-              padding: '60px 20px',
-              backgroundColor: '#ffffff',
-              borderRadius: 'var(--radius-md)',
-              border: '1px solid rgba(212, 175, 55, 0.2)',
-            }}
-          >
-            <Search size={40} color="var(--gold-dark)" style={{ marginBottom: '16px' }} />
-            <h3 style={{ marginBottom: '8px', color: 'var(--green-dark)' }}>
-              No dishes found matching "{searchQuery}"
-            </h3>
-            <p style={{ color: 'var(--text-muted)', marginBottom: '20px' }}>
-              Try searching with another keyword or explore all categories.
-            </p>
-            <button
-              onClick={() => {
-                setSearchQuery('');
-                setActiveCategory('all');
-              }}
-              className="btn btn-primary btn-sm"
-            >
-              Reset Filters
-            </button>
+          /* Grouped Accordions when 'All' is selected */
+          <div className="menu-accordions-container">
+            {categoriesWithItems.map((catGroup) => {
+              const isOpen = !!openAccordions[catGroup.id];
+              const IconComp = iconMap[catGroup.icon] || Utensils;
+
+              return (
+                <div key={catGroup.id} className="menu-accordion-card">
+                  {/* Accordion Header */}
+                  <div
+                    className={`accordion-header ${isOpen ? 'open' : ''}`}
+                    onClick={() => toggleAccordion(catGroup.id)}
+                  >
+                    <div className="accordion-header-left">
+                      <div className="accordion-icon-box">
+                        <IconComp size={18} />
+                      </div>
+                      <div>
+                        <h3 className="accordion-title">{catGroup.name}</h3>
+                        <span className="accordion-subcount">
+                          {catGroup.items.length} dishes available
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="accordion-header-right">
+                      <button
+                        className="accordion-jump-btn"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleCategoryChange(catGroup.id);
+                        }}
+                        title={`Filter only ${catGroup.name}`}
+                      >
+                        View Only
+                      </button>
+                      <div className="accordion-chevron">
+                        {isOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Accordion Body */}
+                  {isOpen && (
+                    <div className="accordion-body">
+                      <div className={viewMode === 'grid' ? 'menu-grid-compact' : 'menu-list-view'}>
+                        {catGroup.items.map((dish) => (
+                          <div
+                            key={dish.id}
+                            className={viewMode === 'grid' ? 'menu-card-compact' : 'menu-list-row'}
+                          >
+                            <div className="dish-info-left">
+                              <div className="veg-indicator" title="Pure Vegetarian">
+                                <div className="veg-indicator-dot" />
+                              </div>
+                              <h4 className="dish-title-compact">{dish.name}</h4>
+                            </div>
+                            <span className="dish-badge-subtle">Freshly Made</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
         )}
       </div>
